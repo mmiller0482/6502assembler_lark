@@ -8,6 +8,7 @@ _LABEL1:
 LABEL2:
 $AF
 %1011
+#%10
     """
 
     parser: AstParser6502 = AstParser6502Factory.build()

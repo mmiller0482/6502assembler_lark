@@ -3,16 +3,21 @@ start: line*
 
 ?line: NEWLINE
     | label
+    | immediate
     | numeric_val
 
+// statement components
 label: IDENTIFIER ":"
+immediate: HASH numeric_val
 numeric_val: HEX | DEC | BIN
+
 
 // RAW vals
 IDENTIFIER: /[A-Za-z_][A-Za-z0-9_]*/
 DEC: /d+/
 HEX: /\$[0-9A-Fa-f]+/
 BIN: /\%[01]+/
+HASH: "#"
 
 %import common.WS_INLINE
 %import common.NEWLINE
