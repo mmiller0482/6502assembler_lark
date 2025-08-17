@@ -3,17 +3,16 @@ start: line*
 
 ?line: NEWLINE
     | label
-    | ACCUMULATOR
     | numeric_val
 
 label: IDENTIFIER ":"
-ACCUMULATOR: "A"
-numeric_val: HEX | DEC
+numeric_val: HEX | DEC | BIN
 
 // RAW vals
 IDENTIFIER: /[A-Za-z_][A-Za-z0-9_]*/
 DEC: /d+/
 HEX: /\$[0-9A-Fa-f]+/
+BIN: /\%[01]+/
 
 %import common.WS_INLINE
 %import common.NEWLINE

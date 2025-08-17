@@ -3,11 +3,11 @@ from ast_parser_6502_factory import AstParser6502Factory
 
 if __name__ == "__main__":
     str_to_parse = """
-A
 A_LABEL0:
 _LABEL1:
 LABEL2:
 $AF
+%1011
     """
 
     parser: AstParser6502 = AstParser6502Factory.build()
