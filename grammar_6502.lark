@@ -14,7 +14,7 @@ numeric_val: HEX | DEC | BIN
 
 // RAW vals
 IDENTIFIER: /[A-Za-z_][A-Za-z0-9_]*/
-DEC: /d+/
+DEC: /\d+/
 HEX: /\$[0-9A-Fa-f]+/
 BIN: /\%[01]+/
 HASH: "#"
