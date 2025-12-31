@@ -1,26 +1,46 @@
-// start tag. * means that sentence can be repeated 0 to many times.
+// Program is a sequence of lines
 start: line*
 
+// A line is: [label] [statement] [comment] NEWLINE
 ?line: NEWLINE
-    | label
-    | immediate
-    | numeric_val
+     | label? statement? comment? NEWLINE
 
-// statement components
+// --- Statements ---
+?statement: directive
+          | instruction
+
+directive: ORG expr
+         | BYTE expr_list
+
+instruction: MNEMONIC operand?
+
+?operand: immediate
+        | expr              -> absolute_or_zp
+
 label: IDENTIFIER ":"
-immediate: HASH numeric_val
-numeric_val: HEX | DEC | BIN
+immediate: HASH expr
 
+// --- Expressions (numeric-only for now) ---
+?expr: numeric_val
+expr_list: expr ("," expr)*
 
-// RAW vals
+// --- Comments ---
+comment: COMMENT
+
+// --- Tokens ---
+MNEMONIC.2: /[A-Za-z]{3}(?![A-Za-z0-9_])/
+ORG: ".org"
+BYTE: ".byte"
+
 IDENTIFIER: /[A-Za-z_][A-Za-z0-9_]*/
 DEC: /\d+/
 HEX: /\$[0-9A-Fa-f]+/
 BIN: /\%[01]+/
 HASH: "#"
+COMMENT: /;[^\n]*/
+
+numeric_val: HEX | DEC | BIN
 
 %import common.WS_INLINE
 %import common.NEWLINE
 %ignore WS_INLINE
-
-
