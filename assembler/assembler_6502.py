@@ -107,12 +107,12 @@ class Assembler6502:
         mnem = stmt["mnemonic"]
         op = stmt.get("operand")
 
-        if mnem == "BRK":
+        if mnem == Op.BRK:
             return 1
-        if mnem == "LDA":
+        if mnem == Op.LDA:
             if op and op["mode"] == "imm":
                 return 2
-        if mnem == "STA":
+        if mnem == Op.STA:
             if op and op["mode"] == "mem":
                 # choose later; but sizing depends on value being zp or abs.
                 # For smoke test (numeric only), we can decide now.
@@ -126,16 +126,16 @@ class Assembler6502:
         mnem = stmt["mnemonic"]
         op = stmt.get("operand")
 
-        if mnem == "BRK":
+        if mnem == Op.BRK:
             return [OPCODES[(Op.BRK, AddrMode.imp)]]
 
-        if mnem == "LDA" and op and op["mode"] == "imm":
+        if mnem == Op.LDA and op and op["mode"] == "imm":
             val = op["expr"]
             if not (0 <= val <= 0xFF):
                 raise AssemblerError(f"LDA immediate out of range: {val:#x}")
             return [OPCODES[(Op.LDA, AddrMode.imm)], val & 0xFF]
 
-        if mnem == "STA" and op and op["mode"] == "mem":
+        if mnem == Op.STA and op and op["mode"] == "mem":
             addr = op["expr"]
             if Assembler6502._is_zp(addr):
                 return [OPCODES[(Op.STA, AddrMode.zp)], addr & 0xFF]
