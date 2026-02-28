@@ -19,26 +19,26 @@ OPCODES: Dict[Tuple[Op, AddrMode], int] = {
 class Assembler6502:
     def __init__(self, program: List[dict]):
         self.program = program
+        self.pc: Optional[int] = None
+        self.origin: Optional[int] = None
+        self.symbols: Dict[str, int] = {}
 
     def assemble(self) -> AsmResult:
-        # --- Pass 1: symbols + sizing ---
-        pc: Optional[int] = None
-        origin: Optional[int] = None
-        symbols: Dict[str, int] = {}
+        # --- Pass 1: self.symbols + sizing ---
 
         for line in self.program:
             label = line.get("label")
             stmt = line.get("stmt")
 
             if stmt and stmt.get("type") == "org":
-                pc = int(stmt["expr"])
-                origin = pc
+                self.pc = int(stmt["expr"])
+                self.origin = self.pc
                 if label:
-                    symbols[label] = pc
+                    self.symbols[label] = self.pc
                 continue
 
-            if pc is None:
-                # require an origin before code/data
+            if self.pc is None:
+                # require an self.origin before code/data
                 if label:
                     raise AssemblerError(f"Label '{label}' defined before .org")
                 if stmt:
@@ -46,25 +46,25 @@ class Assembler6502:
                 continue
 
             if label:
-                symbols[label] = pc
+                self.symbols[label] = self.pc
 
             if not stmt:
                 continue
 
             if stmt["type"] == "instr":
-                pc += Assembler6502._instruction_size(stmt)
+                self.pc += Assembler6502._instruction_size(stmt)
             elif stmt["type"] == "byte":
-                pc += len(stmt["values"])
+                self.pc += len(stmt["values"])
             else:
                 raise AssemblerError(
                     f"Unsupported statement type in smoke test: {stmt['type']}"
                 )
 
-        if origin is None:
+        if self.origin is None:
             raise AssemblerError("Missing .org")
 
         # --- Pass 2: encode ---
-        pc = origin
+        self.pc = self.origin
         out: List[int] = []
 
         for line in self.program:
@@ -73,10 +73,10 @@ class Assembler6502:
                 continue
 
             if stmt["type"] == "org":
-                pc = int(stmt["expr"])
-                # For a smoke test, assume one contiguous block starting at origin.
+                self.pc = int(stmt["expr"])
+                # For a smoke test, assume one contiguous block starting at self.origin.
                 # (Later you can support multiple segments.)
-                if pc != origin and out:
+                if self.pc != self.origin and out:
                     raise AssemblerError(
                         "Multiple .org segments not supported in smoke test"
                     )
@@ -85,7 +85,7 @@ class Assembler6502:
             if stmt["type"] == "instr":
                 bytes_for_insn = Assembler6502._encode_instruction(stmt)
                 out.extend(bytes_for_insn)
-                pc += len(bytes_for_insn)
+                self.pc += len(bytes_for_insn)
                 continue
 
             if stmt["type"] == "byte":
@@ -93,14 +93,14 @@ class Assembler6502:
                     if not (0 <= v <= 0xFF):
                         raise AssemblerError(f".byte value out of range: {v:#x}")
                     out.append(v & 0xFF)
-                    pc += 1
+                    self.pc += 1
                 continue
 
             raise AssemblerError(
                 f"Unsupported statement type in smoke test: {stmt['type']}"
             )
 
-        return AsmResult(origin=origin, bytes_=bytes(out), symbols=symbols)
+        return AsmResult(origin=self.origin, bytes_=bytes(out), symbols=self.symbols)
 
     @staticmethod
     def _instruction_size(stmt: dict) -> int:
