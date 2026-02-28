@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ast_parser_6502 import AstParser6502
+from .ast_parser_6502 import AstParser6502
 
 
 class AstParser6502Factory:

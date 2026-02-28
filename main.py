@@ -1,3 +1,6 @@
+from typing import Dict, List
+
+from assembler.assembler_6502 import AsmResult, assemble
 from ast_parse.ast_parser_6502_factory import AstParser6502Factory
 
 if __name__ == "__main__":
@@ -8,7 +11,9 @@ start:
     BRK ; done
 """
     parser = AstParser6502Factory.build()
-    program = parser.parse(src)
+    program: List[Dict] = parser.parse(src)
 
     for line in program:
         print(line)
+
+    asm_result: AsmResult = assemble(program)

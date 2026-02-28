@@ -1,8 +1,12 @@
 # assembler_6502.py
 from __future__ import annotations
 
+
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
+
+from assembler.exceptions import AssemblerError
+from assembler.enums import OpcodeMnemonic as Op, AddressingMode as AddrMode
 
 
 @dataclass
@@ -12,15 +16,11 @@ class AsmResult:
     symbols: Dict[str, int]
 
 
-class AssemblerError(Exception):
-    pass
-
-
-OPCODES = {
-    ("LDA", "imm"): 0xA9,
-    ("STA", "zp"): 0x85,
-    ("STA", "abs"): 0x8D,
-    ("BRK", "imp"): 0x00,
+OPCODES: Dict[Tuple[Op, AddrMode], int] = {
+    (Op.LDA, AddrMode.imm): 0xA9,
+    (Op.STA, AddrMode.zp): 0x85,
+    (Op.STA, AddrMode.abs): 0x8D,
+    (Op.BRK, AddrMode.imp): 0x00,
 }
 
 
@@ -28,7 +28,7 @@ def _is_zp(value: int) -> bool:
     return 0 <= value <= 0xFF
 
 
-def _insn_size(stmt: dict) -> int:
+def _instruction_size(stmt: dict) -> int:
     mnem = stmt["mnemonic"]
     op = stmt.get("operand")
 
@@ -47,28 +47,28 @@ def _insn_size(stmt: dict) -> int:
     raise AssemblerError(f"Unsupported instruction for smoke test: {mnem} {op}")
 
 
-def _encode_insn(stmt: dict) -> List[int]:
+def _encode_instruction(stmt: dict) -> List[int]:
     mnem = stmt["mnemonic"]
     op = stmt.get("operand")
 
     if mnem == "BRK":
-        return [OPCODES[("BRK", "imp")]]
+        return [OPCODES[(Op.BRK, AddrMode.imp)]]
 
     if mnem == "LDA" and op and op["mode"] == "imm":
         val = op["expr"]
         if not (0 <= val <= 0xFF):
             raise AssemblerError(f"LDA immediate out of range: {val:#x}")
-        return [OPCODES[("LDA", "imm")], val & 0xFF]
+        return [OPCODES[(Op.LDA, AddrMode.imm)], val & 0xFF]
 
     if mnem == "STA" and op and op["mode"] == "mem":
         addr = op["expr"]
         if _is_zp(addr):
-            return [OPCODES[("STA", "zp")], addr & 0xFF]
+            return [OPCODES[(Op.STA, AddrMode.zp)], addr & 0xFF]
         if not (0 <= addr <= 0xFFFF):
             raise AssemblerError(f"STA address out of range: {addr:#x}")
         lo = addr & 0xFF
         hi = (addr >> 8) & 0xFF
-        return [OPCODES[("STA", "abs")], lo, hi]
+        return [OPCODES[(Op.STA, AddrMode.abs)], lo, hi]
 
     raise AssemblerError(f"Unsupported instruction for smoke test: {mnem} {op}")
 
@@ -105,7 +105,7 @@ def assemble(program: List[dict]) -> AsmResult:
             continue
 
         if stmt["type"] == "instr":
-            pc += _insn_size(stmt)
+            pc += _instruction_size(stmt)
         elif stmt["type"] == "byte":
             pc += len(stmt["values"])
         else:
@@ -136,7 +136,7 @@ def assemble(program: List[dict]) -> AsmResult:
             continue
 
         if stmt["type"] == "instr":
-            bytes_for_insn = _encode_insn(stmt)
+            bytes_for_insn = _encode_instruction(stmt)
             out.extend(bytes_for_insn)
             pc += len(bytes_for_insn)
             continue
