@@ -3,7 +3,7 @@
 # ----------------------------
 from lark import Transformer, Token, v_args
 
-from assembler.enums import OpcodeMnemonic
+from assembler.enums import OpcodeMnemonic, AddressingMode
 from assembler.exceptions import AstParserError
 
 # NOTES about transform methods:
@@ -44,11 +44,11 @@ class AstBuilder(Transformer):
         return value
 
     def immediate(self, _hash, expr):
-        return {"mode": "imm", "expr": expr}
+        return {"mode": AddressingMode.imm, "expr": expr}
 
     def absolute_or_zp(self, expr):
         # we’ll decide zp vs abs later (during sizing/encoding)
-        return {"mode": "mem", "expr": expr}
+        return {"mode": AddressingMode.mem, "expr": expr}
 
     # ---------- Labels ----------
     def label(self, ident: Token, _colon: Token = None):

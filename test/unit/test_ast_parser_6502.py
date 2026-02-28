@@ -2,6 +2,8 @@ import pytest
 
 from assembler.ast_parse.ast_parser_6502 import AstParser6502
 from assembler.ast_parse.ast_parser_6502_factory import AstParser6502Factory
+from assembler.enums import AddressingMode
+
 
 @pytest.fixture
 def gen_parser():
@@ -51,7 +53,7 @@ class TestAstParser6502:
         # generated the way it does
         assert isinstance(ast, dict)
         assert "mode" in ast
-        assert ast["mode"] == "imm"
+        assert ast["mode"] == AddressingMode.imm
 
         assert "expr" in ast
         assert ast["expr"] == expected

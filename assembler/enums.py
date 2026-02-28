@@ -19,3 +19,5 @@ class AddressingMode(Enum):
     zp = auto()
     abs = auto()
     imp = auto()
+    # TODO: What is mem? AstBuilder says we'll deal with it later
+    mem = auto()
