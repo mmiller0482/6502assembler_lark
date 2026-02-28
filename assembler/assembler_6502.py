@@ -23,9 +23,17 @@ class Assembler6502:
         self.origin: Optional[int] = None
         self.symbols: Dict[str, int] = {}
 
-    def assemble(self) -> AsmResult:
-        # --- Pass 1: self.symbols + sizing ---
 
+
+
+    def assemble(self) -> AsmResult:
+        self._assemble_pass_1()
+        out = self._assemble_pass_2()
+        return AsmResult(origin=self.origin, bytes_=bytes(out), symbols=self.symbols)
+
+
+    def _assemble_pass_1(self):
+        # --- Pass 1: self.symbols + sizing ---
         for line in self.program:
             label = line.get("label")
             stmt = line.get("stmt")
@@ -63,6 +71,8 @@ class Assembler6502:
         if self.origin is None:
             raise AssemblerError("Missing .org")
 
+
+    def _assemble_pass_2(self) -> List[int]:
         # --- Pass 2: encode ---
         self.pc = self.origin
         out: List[int] = []
@@ -100,8 +110,7 @@ class Assembler6502:
                 f"Unsupported statement type in smoke test: {stmt['type']}"
             )
 
-        return AsmResult(origin=self.origin, bytes_=bytes(out), symbols=self.symbols)
-
+        return out
     @staticmethod
     def _instruction_size(stmt: dict) -> int:
         mnem = stmt["mnemonic"]
