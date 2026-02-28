@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from assembler.assembler_6502 import AsmResult, Assembler6502
-from ast_parse.ast_parser_6502_factory import AstParser6502Factory
+from assembler.ast_parse import AstParser6502Factory
 
 if __name__ == "__main__":
     src = """.org $C000

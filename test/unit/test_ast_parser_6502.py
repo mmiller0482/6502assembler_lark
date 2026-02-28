@@ -1,6 +1,6 @@
 import pytest
 
-from ast_parse.ast_parser_6502_factory import AstParser6502Factory
+from assembler.ast_parse import AstParser6502Factory
 
 
 @pytest.fixture

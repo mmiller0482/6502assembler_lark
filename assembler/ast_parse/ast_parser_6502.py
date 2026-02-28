@@ -1,6 +1,6 @@
 from lark import Lark
 
-from ast_parse.ASTBuilder import ASTBuilder
+from .ASTBuilder import ASTBuilder
 
 
 class AstParser6502:
