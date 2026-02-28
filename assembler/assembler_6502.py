@@ -1,8 +1,8 @@
-
 # assembler_6502.py
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -109,7 +109,9 @@ def assemble(program: List[dict]) -> AsmResult:
         elif stmt["type"] == "byte":
             pc += len(stmt["values"])
         else:
-            raise AssemblerError(f"Unsupported statement type in smoke test: {stmt['type']}")
+            raise AssemblerError(
+                f"Unsupported statement type in smoke test: {stmt['type']}"
+            )
 
     if origin is None:
         raise AssemblerError("Missing .org")
@@ -128,7 +130,9 @@ def assemble(program: List[dict]) -> AsmResult:
             # For a smoke test, assume one contiguous block starting at origin.
             # (Later you can support multiple segments.)
             if pc != origin and out:
-                raise AssemblerError("Multiple .org segments not supported in smoke test")
+                raise AssemblerError(
+                    "Multiple .org segments not supported in smoke test"
+                )
             continue
 
         if stmt["type"] == "instr":
@@ -145,6 +149,8 @@ def assemble(program: List[dict]) -> AsmResult:
                 pc += 1
             continue
 
-        raise AssemblerError(f"Unsupported statement type in smoke test: {stmt['type']}")
+        raise AssemblerError(
+            f"Unsupported statement type in smoke test: {stmt['type']}"
+        )
 
     return AsmResult(origin=origin, bytes_=bytes(out), symbols=symbols)
