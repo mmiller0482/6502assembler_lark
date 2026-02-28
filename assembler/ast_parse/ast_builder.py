@@ -3,6 +3,9 @@
 # ----------------------------
 from lark import Transformer, Token, v_args
 
+from assembler.enums import OpcodeMnemonic
+from assembler.exceptions import AstParserError
+
 # NOTES about transform methods:
 # If transform is for a terminal, the arguments passed in is a single argument, for the terminal token.
 # If transform is for a rule that consists of a literal + an already transformed token, only the value of the already transformed is returned.
@@ -10,7 +13,13 @@ from lark import Transformer, Token, v_args
 
 
 @v_args(inline=True)
-class ASTBuilder(Transformer):
+class AstBuilder(Transformer):
+    MNEMONIC_MAP = {
+        "LDA": OpcodeMnemonic.LDA,
+        "STA": OpcodeMnemonic.STA,
+        "BRK": OpcodeMnemonic.BRK,
+    }
+
     # ---------- Terminals -> python ----------
     def DEC(self, tok: Token):
         return int(tok)
@@ -22,7 +31,12 @@ class ASTBuilder(Transformer):
         return int(tok[1:], 2)
 
     def MNEMONIC(self, tok: Token):
-        return str(tok).upper()
+        # TODO: Ask GPT if converting the raw mnemonic strings to enums at this
+        # point is appropriate
+        my_tok = str(tok)
+        if my_tok not in self.MNEMONIC_MAP:
+            raise AstParserError(f"Couldn't identify mnemonic: {my_tok}")
+        return self.MNEMONIC_MAP[my_tok]
 
     # ---------- Atoms / expressions ----------
     def numeric_val(self, value):

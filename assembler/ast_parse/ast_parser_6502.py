@@ -1,6 +1,6 @@
 from lark import Lark
 
-from .ASTBuilder import ASTBuilder
+from .ast_builder import AstBuilder
 
 
 class AstParser6502:
@@ -16,7 +16,7 @@ class AstParser6502:
         lalr
         """
         self._parser = Lark(
-            grammar, start=start_tag, parser="lalr", transformer=ASTBuilder()
+            grammar, start=start_tag, parser="lalr", transformer=AstBuilder()
         )
 
     def parse(self, text: str):

@@ -4,7 +4,7 @@ from .ast_parser_6502 import AstParser6502
 
 
 class AstParser6502Factory:
-    GRAMMAR_FILE = Path(__file__).parent.parent / "grammar" / "grammar_6502.lark"
+    GRAMMAR_FILE = Path(__file__).parent.parent.parent / "grammar" / "grammar_6502.lark"
 
     @classmethod
     def build(cls, grammar_file: str = None, start_tag: str = "start"):
