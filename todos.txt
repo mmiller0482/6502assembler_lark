@@ -1,4 +1,4 @@
-ou already have:
+You already have:
 	•	Grammar skeleton (label, immediate, numeric_val)
 	•	Transformer that produces simple AST nodes
 	•	A working parse entry point
