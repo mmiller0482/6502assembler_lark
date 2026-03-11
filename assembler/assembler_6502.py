@@ -4,9 +4,9 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Tuple
 
 from assembler.asm_result import AsmResult
+from assembler.assembler_6502_state import Assembler6502State
 from assembler.exceptions import AssemblerError
 from assembler.enums import OpcodeMnemonic as Op, AddressingMode as AddrMode
-
 
 OPCODES: Dict[Tuple[Op, AddrMode], int] = {
     (Op.LDA, AddrMode.imm): 0xA9,
@@ -19,18 +19,37 @@ OPCODES: Dict[Tuple[Op, AddrMode], int] = {
 class Assembler6502:
     def __init__(self, program: List[dict]):
         self.program = program
-        self.pc: Optional[int] = None
-        self.origin: Optional[int] = None
-        self.symbols: Dict[str, int] = {}
+        self.state = Assembler6502State()
 
+    # Properties
+    @property
+    def pc(self) -> Optional[int]:
+        return self.state.pc
 
+    @pc.setter
+    def pc(self, value: int):
+        self.state.pc = value
 
+    @property
+    def symbols(self) -> Dict[str, int]:
+        return self.state.symbols
+
+    @symbols.setter
+    def symbols(self, value: Dict[str, int]):
+        self.state.symbols = value
+
+    @property
+    def origin(self) -> Optional[int]:
+        return self.state.origin
+
+    @origin.setter
+    def origin(self, value: int):
+        self.state.origin = value
 
     def assemble(self) -> AsmResult:
         self._assemble_pass_1()
         out = self._assemble_pass_2()
         return AsmResult(origin=self.origin, bytes_=bytes(out), symbols=self.symbols)
-
 
     def _assemble_pass_1(self):
         # --- Pass 1: self.symbols + sizing ---
@@ -71,7 +90,6 @@ class Assembler6502:
         if self.origin is None:
             raise AssemblerError("Missing .org")
 
-
     def _assemble_pass_2(self) -> List[int]:
         # --- Pass 2: encode ---
         self.pc = self.origin
@@ -111,6 +129,7 @@ class Assembler6502:
             )
 
         return out
+
     @staticmethod
     def _instruction_size(stmt: dict) -> int:
         mnem = stmt["mnemonic"]
