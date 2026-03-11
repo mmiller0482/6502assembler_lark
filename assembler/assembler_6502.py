@@ -47,6 +47,7 @@ class Assembler6502:
         self.state.origin = value
 
     def assemble(self) -> AsmResult:
+        self.state.reset()
         self._assemble_pass_1()
         out = self._assemble_pass_2()
         return AsmResult(origin=self.origin, bytes_=bytes(out), symbols=self.symbols)
